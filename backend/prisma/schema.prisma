@@ -1,0 +1,135 @@
+// ---- Prisma Schema for MeetingPilot AI ----
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---- Enums ----
+
+enum MeetingStatus {
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+// ---- Models ----
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  meetings      Meeting[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model Meeting {
+  id          String        @id @default(uuid())
+  title       String
+  description String        @default("")
+  status      MeetingStatus @default(SCHEDULED)
+  participants String[]     @default([])
+  scheduledAt DateTime?     @map("scheduled_at")
+  startedAt   DateTime?     @map("started_at")
+  endedAt     DateTime?     @map("ended_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transcriptChunks TranscriptChunk[]
+  actionItems      ActionItem[]
+  decisions        Decision[]
+  summary          MeetingSummary?
+
+  @@index([userId])
+  @@index([status])
+  @@map("meetings")
+}
+
+model TranscriptChunk {
+  id         String   @id @default(uuid())
+  speaker    String
+  text       String
+  startTime  Float    @map("start_time")
+  endTime    Float    @map("end_time")
+  confidence Float    @default(1)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  meetingId String  @map("meeting_id")
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("transcript_chunks")
+}
+
+model ActionItem {
+  id          String   @id @default(uuid())
+  text        String
+  assignee    String?
+  dueDate     DateTime? @map("due_date")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  meetingId String  @map("meeting_id")
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("action_items")
+}
+
+model Decision {
+  id        String   @id @default(uuid())
+  text      String
+  context   String?
+  madeBy    String?  @map("made_by")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  meetingId String  @map("meeting_id")
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([meetingId])
+  @@map("decisions")
+}
+
+model MeetingSummary {
+  id        String   @id @default(uuid())
+  content   String
+  keyPoints String[] @default([]) @map("key_points")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  meetingId String  @unique @map("meeting_id")
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@map("meeting_summaries")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String
+  revoked   Boolean  @default(false)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
