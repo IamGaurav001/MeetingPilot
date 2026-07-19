@@ -1,50 +1,51 @@
-/**
- * Kafka topic name constants.
- *
- * Every topic has a clear purpose, producer, and consumer
- * documented here.
- */
-
 export const KAFKA_TOPICS = Object.freeze({
   /**
-   * New transcript chunk received.
-   * Producer: Transcript module
-   * Consumer: AI module (embedding, RAG indexing)
-   */
-  TRANSCRIPT_CHUNK_CREATED: 'transcript.chunk.created',
-
-  /**
    * Meeting started — triggers listeners.
-   * Producer: Meeting module
-   * Consumer: Transcript module, AI module
    */
   MEETING_STARTED: 'meeting.started',
 
   /**
    * Meeting ended — triggers summary generation.
-   * Producer: Meeting module
-   * Consumer: AI module (summary agent)
    */
   MEETING_ENDED: 'meeting.ended',
 
   /**
-   * AI suggestion generated for the current meeting.
-   * Producer: AI module (suggestion agent)
-   * Consumer: Desktop app (via WebSocket/IPC)
+   * New transcript chunk received.
    */
-  AI_SUGGESTION_GENERATED: 'ai.suggestion.generated',
+  TRANSCRIPT_CHUNK_CREATED: 'transcript.chunk.created',
+
+  /**
+   * Vector Embeddings generated for a transcript chunk.
+   */
+  EMBEDDING_CREATED: 'embedding.created',
+
+  /**
+   * RAG Vector database context index updated.
+   */
+  RAG_UPDATED: 'rag.updated',
+
+  /**
+   * AI suggestion generated for the current meeting.
+   */
+  SUGGESTION_GENERATED: 'suggestion.generated',
 
   /**
    * Action item extracted from transcript.
-   * Producer: AI module (action item agent)
-   * Consumer: Meeting module (persists to DB)
    */
-  ACTION_ITEM_EXTRACTED: 'ai.action-item.extracted',
+  ACTION_DETECTED: 'action.detected',
 
   /**
    * Decision detected in transcript.
-   * Producer: AI module (decision agent)
-   * Consumer: Meeting module (persists to DB)
    */
-  DECISION_DETECTED: 'ai.decision.detected',
+  DECISION_DETECTED: 'decision.detected',
+
+  /**
+   * Meeting summary generated.
+   */
+  SUMMARY_GENERATED: 'summary.generated',
+
+  /**
+   * Dead Letter Queue (DLQ) topic for processing errors.
+   */
+  DLQ_AI_FAILED: 'dlq.ai.failed',
 });

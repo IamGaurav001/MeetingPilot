@@ -4,12 +4,17 @@
  * Starts the HTTP server and handles graceful shutdown.
  */
 
+import { createServer } from 'http';
 import app from './app.js';
 import config from './config/index.js';
 import { logger } from './config/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { initSocket } from './config/socket.js';
 
-const server = app.listen(config.port, async () => {
+const httpServer = createServer(app);
+initSocket(httpServer);
+
+const server = httpServer.listen(config.port, async () => {
   try {
     await connectDatabase();
     logger.info(`Server running on port ${config.port} [${config.env}]`);
