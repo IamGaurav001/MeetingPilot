@@ -8,6 +8,8 @@ import * as meetingService from './meeting.service.js';
 import { sendSuccess, sendCreated, sendNoContent } from '../../shared/utils/response.js';
 import { parsePagination, buildPaginationMeta } from '../../shared/utils/pagination.js';
 import { MEETING_STATUS } from '../../shared/constants/meetingStatus.js';
+import { memoryManager } from '../ai/memory/MemoryManager.js';
+import { aiPipelineCoordinator } from '../ai/AIPipelineCoordinator.js';
 
 /**
  * POST /api/meetings
@@ -82,6 +84,10 @@ export async function start(req, res, next) {
       req.user.userId,
       MEETING_STATUS.ACTIVE,
     );
+
+    // Initialize AI conversation and meeting memory
+    memoryManager.startMeeting(meeting.id, { participants: meeting.participants });
+
     sendSuccess(res, { data: meeting });
   } catch (error) {
     next(error);
@@ -98,6 +104,12 @@ export async function stop(req, res, next) {
       req.user.userId,
       MEETING_STATUS.COMPLETED,
     );
+
+    // Trigger final summary pipeline asynchronously
+    aiPipelineCoordinator.handleMeetingEnd(meeting.id).catch((err) => {
+      console.error('[MeetingController] Async final pipeline processing failed:', err);
+    });
+
     sendSuccess(res, { data: meeting });
   } catch (error) {
     next(error);
