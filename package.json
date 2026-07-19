@@ -1,0 +1,32 @@
+{
+  "name": "meetingpilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MeetingPilot AI — Desktop AI meeting copilot",
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "desktop",
+    "shared"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:desktop": "npm run dev --workspace=desktop",
+    "build:backend": "npm run build --workspace=backend",
+    "build:desktop": "npm run build --workspace=desktop",
+    "lint": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint . --ext .js,.jsx --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:migrate": "npm run db:migrate --workspace=backend",
+    "db:seed": "npm run db:seed --workspace=backend",
+    "db:studio": "npm run db:studio --workspace=backend"
+  },
+  "devDependencies": {
+    "eslint": "^9.7.0",
+    "prettier": "^3.3.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
