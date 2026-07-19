@@ -133,3 +133,13 @@ model RefreshToken {
   @@index([token])
   @@map("refresh_tokens")
 }
+
+model FailedEvent {
+  id         String   @id @default(uuid())
+  topic      String
+  payload    Json
+  errorStack String   @map("error_stack")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("failed_events")
+}
