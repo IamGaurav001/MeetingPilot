@@ -5,17 +5,17 @@
  * and provides quick-access controls.
  */
 
-import { Tray, Menu } from 'electron';
-import { join } from 'path';
+// import { Tray, Menu } from 'electron';
+// import { join } from 'path';
 
 let tray = null;
 
 /**
  * Create and configure the system tray.
  *
- * @param {import('electron').BrowserWindow} mainWindow
+ * @param {import('electron').BrowserWindow} _mainWindow
  */
-export function createTray(mainWindow) {
+export function createTray(_mainWindow) {
   // Phase 2: Use actual icon asset
   // tray = new Tray(join(__dirname, '../../resources/icon.png'));
 

@@ -41,7 +41,10 @@ export async function connectKafka() {
     logger.info('Kafka connected');
     return true;
   } catch (error) {
-    logger.warn({ msg: 'Kafka not available — running without event streaming', error: error.message });
+    logger.warn({
+      msg: 'Kafka not available — running without event streaming',
+      error: error.message,
+    });
     return false;
   }
 }

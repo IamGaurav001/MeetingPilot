@@ -95,7 +95,10 @@ export async function refresh(refreshTokenValue) {
   });
 
   if (!storedToken) {
-    throw AppError.unauthorized('Refresh token not found or revoked', ERROR_CODES.AUTH_TOKEN_INVALID);
+    throw AppError.unauthorized(
+      'Refresh token not found or revoked',
+      ERROR_CODES.AUTH_TOKEN_INVALID,
+    );
   }
 
   // Revoke the old token

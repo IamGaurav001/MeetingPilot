@@ -18,7 +18,10 @@ export function authGuard(req, _res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw AppError.unauthorized('Missing or invalid authorization header', ERROR_CODES.AUTH_TOKEN_INVALID);
+      throw AppError.unauthorized(
+        'Missing or invalid authorization header',
+        ERROR_CODES.AUTH_TOKEN_INVALID,
+      );
     }
 
     const token = authHeader.split(' ')[1];

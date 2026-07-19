@@ -18,9 +18,7 @@ const styles = {
 export default function MeetingView() {
   return (
     <div style={styles.container}>
-      <div style={styles.placeholder}>
-        Select or start a meeting to see the live view
-      </div>
+      <div style={styles.placeholder}>Select or start a meeting to see the live view</div>
     </div>
   );
 }

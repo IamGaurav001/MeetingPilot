@@ -8,7 +8,10 @@
 import { getPrisma } from '../../config/database.js';
 import { AppError } from '../../shared/errors/AppError.js';
 import { ERROR_CODES } from '../../shared/constants/errorCodes.js';
-import { MEETING_STATUS, MEETING_STATUS_TRANSITIONS } from '../../shared/constants/meetingStatus.js';
+import {
+  MEETING_STATUS,
+  MEETING_STATUS_TRANSITIONS,
+} from '../../shared/constants/meetingStatus.js';
 
 /**
  * Create a new meeting.

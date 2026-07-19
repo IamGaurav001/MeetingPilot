@@ -8,7 +8,7 @@
  */
 
 import { logger } from '../../../config/logger.js';
-import { withAgentLogging, formatTranscriptForPrompt } from './shared/agentUtils.js';
+import { withAgentLogging } from './shared/agentUtils.js';
 
 const AGENT_NAME = 'SuggestionAgent';
 
@@ -16,7 +16,7 @@ const AGENT_NAME = 'SuggestionAgent';
  * Generate suggestions based on recent transcript context.
  */
 async function generateSuggestions(state) {
-  const transcript = formatTranscriptForPrompt(state.transcriptChunks.slice(-10));
+  // const _transcript = formatTranscriptForPrompt(state.transcriptChunks.slice(-10));
 
   logger.info({ msg: `[${AGENT_NAME}] Processing ${state.transcriptChunks.length} chunks` });
 

@@ -16,7 +16,10 @@ import { HTTP_STATUS } from '../constants/httpStatus.js';
  * @param {number} [options.statusCode] - HTTP status (default 200)
  * @param {object} [options.meta] - Pagination or other metadata
  */
-export function sendSuccess(res, { data = null, statusCode = HTTP_STATUS.OK, meta = undefined } = {}) {
+export function sendSuccess(
+  res,
+  { data = null, statusCode = HTTP_STATUS.OK, meta = undefined } = {},
+) {
   const response = { success: true };
 
   if (data !== null) {

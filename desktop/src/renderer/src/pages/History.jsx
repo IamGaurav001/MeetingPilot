@@ -25,9 +25,7 @@ export default function History() {
       <div style={styles.empty}>
         <span style={styles.emptyIcon}>◷</span>
         <p>No meetings yet</p>
-        <p style={{ fontSize: 'var(--font-size-sm)' }}>
-          Your completed meetings will appear here
-        </p>
+        <p style={{ fontSize: 'var(--font-size-sm)' }}>Your completed meetings will appear here</p>
       </div>
     </div>
   );

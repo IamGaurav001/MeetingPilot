@@ -23,7 +23,10 @@ export function validate(schema, source = 'body') {
       const messages = result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`);
 
       return next(
-        AppError.badRequest(`Validation failed: ${messages.join(', ')}`, ERROR_CODES.VALIDATION_ERROR),
+        AppError.badRequest(
+          `Validation failed: ${messages.join(', ')}`,
+          ERROR_CODES.VALIDATION_ERROR,
+        ),
       );
     }
 

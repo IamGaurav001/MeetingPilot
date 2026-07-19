@@ -16,7 +16,12 @@ router.use(authGuard);
 router.post('/', validate(createMeetingSchema), meetingController.create);
 router.get('/', meetingController.getAll);
 router.get('/:id', validate(meetingIdSchema, 'params'), meetingController.getById);
-router.patch('/:id', validate(meetingIdSchema, 'params'), validate(updateMeetingSchema), meetingController.update);
+router.patch(
+  '/:id',
+  validate(meetingIdSchema, 'params'),
+  validate(updateMeetingSchema),
+  meetingController.update,
+);
 router.delete('/:id', validate(meetingIdSchema, 'params'), meetingController.remove);
 
 router.post('/:id/start', validate(meetingIdSchema, 'params'), meetingController.start);

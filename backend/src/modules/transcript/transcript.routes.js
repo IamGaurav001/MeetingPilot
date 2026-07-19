@@ -15,7 +15,16 @@ const router = Router({ mergeParams: true });
 
 router.use(authGuard);
 
-router.get('/:meetingId/transcript', validate(meetingIdParamSchema, 'params'), transcriptController.getTranscript);
-router.post('/:meetingId/transcript/chunks', validate(meetingIdParamSchema, 'params'), validate(createChunkSchema), transcriptController.addChunk);
+router.get(
+  '/:meetingId/transcript',
+  validate(meetingIdParamSchema, 'params'),
+  transcriptController.getTranscript,
+);
+router.post(
+  '/:meetingId/transcript/chunks',
+  validate(meetingIdParamSchema, 'params'),
+  validate(createChunkSchema),
+  transcriptController.addChunk,
+);
 
 export default router;

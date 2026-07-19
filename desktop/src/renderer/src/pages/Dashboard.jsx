@@ -63,8 +63,8 @@ export default function Dashboard() {
       <div style={styles.welcomeCard}>
         <h2 style={styles.welcomeTitle}>Welcome to MeetingPilot AI</h2>
         <p style={styles.welcomeSubtitle}>
-          Your AI meeting copilot is ready. Start a meeting to get live suggestions,
-          action items, and intelligent summaries.
+          Your AI meeting copilot is ready. Start a meeting to get live suggestions, action items,
+          and intelligent summaries.
         </p>
         <button
           style={styles.startButton}
