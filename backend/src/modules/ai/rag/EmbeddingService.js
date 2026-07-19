@@ -4,7 +4,7 @@
  * Generates vector embeddings for text chunks using Gemini text-embedding-004.
  */
 
-import { GoogleGenAIEmbeddings } from '@langchain/google-genai';
+import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 import config from '../../../config/index.js';
 import { logger } from '../../../config/logger.js';
 import { latencyTracker } from '../../../shared/observability/LatencyTracker.js'; // Note: observability path is shared/observability
@@ -21,7 +21,7 @@ function getEmbeddingsModel() {
   }
 
   if (!embeddingsModel) {
-    embeddingsModel = new GoogleGenAIEmbeddings({
+    embeddingsModel = new GoogleGenerativeAIEmbeddings({
       apiKey: config.gemini.apiKey,
       modelName: 'text-embedding-004',
     });
