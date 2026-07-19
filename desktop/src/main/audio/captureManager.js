@@ -1,45 +1,57 @@
+/* eslint-disable no-console */
+import { audioDeviceManager } from './AudioDeviceManager.js';
+import { MicrophoneProvider, SystemAudioProvider, MixedAudioProvider } from './AudioProvider.js';
+
+let activeProvider = new MicrophoneProvider(); // Default to Microphone
+
 /**
- * Audio capture manager.
+ * Configure the active audio provider.
  *
- * Pluggable interface for capturing audio from meetings.
- * Phase 1: Stubbed — actual implementation depends on audio strategy
- * (system audio, mic, or both).
+ * @param {'mic' | 'system' | 'mixed'} type
  */
-
-/**
- * @typedef {Object} AudioCaptureState
- * @property {boolean} isRecording
- * @property {string|null} deviceId
- * @property {number} sampleRate
- */
-
-let state = {
-  isRecording: false,
-  deviceId: null,
-  sampleRate: 16000,
-};
+export function setAudioProviderType(type) {
+  switch (type) {
+    case 'system':
+      activeProvider = new SystemAudioProvider();
+      break;
+    case 'mixed':
+      activeProvider = new MixedAudioProvider();
+      break;
+    case 'mic':
+    default:
+      activeProvider = new MicrophoneProvider();
+      break;
+  }
+  console.log(`[CaptureManager] Configured provider type: ${type}`);
+}
 
 /**
  * Start audio capture.
  */
 export async function startCapture(deviceId = null) {
-  state = { ...state, isRecording: true, deviceId };
-  // Phase 2: Initialize actual audio capture
-  return state;
+  if (deviceId) {
+    audioDeviceManager.selectDevice(deviceId);
+  }
+  return activeProvider.start();
 }
 
 /**
  * Stop audio capture.
  */
 export async function stopCapture() {
-  state = { ...state, isRecording: false };
-  // Phase 2: Clean up audio resources
-  return state;
+  return activeProvider.stop();
 }
 
 /**
- * Get current capture state.
+ * Get current capture status.
  */
 export function getCaptureState() {
-  return { ...state };
+  const status = activeProvider.status();
+  const config = audioDeviceManager.getActiveDeviceConfig();
+  return {
+    isRecording: status.isRecording,
+    provider: status.providerType,
+    deviceId: config.deviceId,
+    permissionsGranted: config.permissionsGranted,
+  };
 }
