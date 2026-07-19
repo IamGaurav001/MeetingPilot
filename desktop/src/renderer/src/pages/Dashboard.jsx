@@ -68,26 +68,46 @@ export default function Dashboard() {
   const { setRecording } = useAppStore();
 
   const handleStartMeeting = async () => {
+    console.log('[Dashboard] Start meeting button clicked');
+    console.log('[Dashboard] Checking window.meetingPilot:', window.meetingPilot);
+
     try {
+      if (!window.meetingPilot || !window.meetingPilot.meeting) {
+        throw new Error(
+          'Electron preload bridge (window.meetingPilot) is not available. Ensure you are running inside Electron, not a standard web browser.',
+        );
+      }
+
+      console.log('[Dashboard] Invoking window.meetingPilot.meeting.create');
       // 1. Create a new meeting via Electron bridge
       const createRes = await window.meetingPilot.meeting.create({
         title: `Quick Sync — ${new Date().toLocaleDateString()}`,
         description: 'AI meeting copilot session.',
       });
+      console.log('[Dashboard] createRes response:', createRes);
 
       if (createRes.success && createRes.data) {
         const meetingId = createRes.data.id;
+        console.log('[Dashboard] Invoking window.meetingPilot.meeting.start for id:', meetingId);
 
         // 2. Start the meeting
         const startRes = await window.meetingPilot.meeting.start(meetingId);
+        console.log('[Dashboard] startRes response:', startRes);
+
         if (startRes.success) {
           // 3. Update active states
+          console.log('[Dashboard] Updating Zustand store values');
           setActiveMeeting(startRes.data);
           setRecording(true);
 
           // 4. Navigate to live MeetingView panel
+          console.log('[Dashboard] Navigating to /meeting/', meetingId);
           navigate(`/meeting/${meetingId}`);
+        } else {
+          console.warn('[Dashboard] startRes failed:', startRes);
         }
+      } else {
+        console.warn('[Dashboard] createRes failed:', createRes);
       }
     } catch (error) {
       console.error('[Dashboard] Failed to start new meeting:', error);
