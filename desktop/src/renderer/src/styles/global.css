@@ -1,0 +1,133 @@
+/**
+ * Global CSS — Design System
+ *
+ * Dark theme with premium aesthetics.
+ * All CSS variables defined here for consistency.
+ */
+
+:root {
+  /* Colors */
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #12121a;
+  --color-bg-card: #1a1a26;
+  --color-bg-hover: #22222e;
+  --color-bg-active: #2a2a38;
+
+  --color-border: #2a2a3a;
+  --color-border-hover: #3a3a4a;
+
+  --color-text-primary: #e8e8ed;
+  --color-text-secondary: #9a9aaa;
+  --color-text-muted: #6a6a7a;
+
+  --color-accent: #6c5ce7;
+  --color-accent-hover: #7d6ff0;
+  --color-accent-subtle: rgba(108, 92, 231, 0.12);
+
+  --color-success: #00d68f;
+  --color-warning: #ffaa00;
+  --color-error: #ff4d6a;
+  --color-info: #00b4d8;
+
+  /* Typography */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --header-height: 56px;
+}
+
+/* ---- Reset ---- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
