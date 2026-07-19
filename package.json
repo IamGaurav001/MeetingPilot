@@ -10,12 +10,13 @@
     "shared"
   ],
   "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:desktop\"",
     "dev:backend": "npm run dev --workspace=backend",
     "dev:desktop": "npm run dev --workspace=desktop",
     "build:backend": "npm run build --workspace=backend",
     "build:desktop": "npm run build --workspace=desktop",
-    "lint": "eslint . --ext .js,.jsx",
-    "lint:fix": "eslint . --ext .js,.jsx --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:migrate": "npm run db:migrate --workspace=backend",
@@ -23,6 +24,7 @@
     "db:studio": "npm run db:studio --workspace=backend"
   },
   "devDependencies": {
+    "concurrently": "^10.0.3",
     "eslint": "^9.7.0",
     "prettier": "^3.3.0"
   },
