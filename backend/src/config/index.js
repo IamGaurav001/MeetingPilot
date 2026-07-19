@@ -6,10 +6,16 @@
  */
 
 import { config as dotenvConfig } from 'dotenv';
-import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-// Load .env from project root (one level up from backend/)
-dotenvConfig({ path: resolve(process.cwd(), '..', '.env') });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env relative to this config file (two levels up in backend root, or root workspace folder)
+// First try backend root .env, then fallback to workspace root .env
+dotenvConfig({ path: join(__dirname, '..', '..', '.env') });
+dotenvConfig({ path: join(__dirname, '..', '..', '..', '.env') });
 
 /**
  * Validates that all required environment variables are present.

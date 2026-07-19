@@ -67,6 +67,14 @@ async function summaryNode(state) {
 }
 
 /**
+ * Node: Standard Router.
+ * Acts as a dummy no-op node to split execution path into parallel standard agents.
+ */
+async function standardRouterNode(state) {
+  return state;
+}
+
+/**
  * Builds and compiles the LangGraph StateGraph.
  */
 function buildGraph() {
@@ -76,26 +84,39 @@ function buildGraph() {
 
   // Add processing nodes
   workflow.addNode('context', contextNode);
+  workflow.addNode('standardRouter', standardRouterNode);
   workflow.addNode('suggestion', suggestionNode);
   workflow.addNode('actionItem', actionItemNode);
   workflow.addNode('decision', decisionNode);
-  workflow.addNode('summary', summaryNode);
+  workflow.addNode('summaryAgent', summaryNode);
 
   // Set default entry point
   workflow.setEntryPoint('context');
 
-  // Define edges: run suggestion, action items, and decisions in parallel, then finish
-  workflow.addEdge('context', 'suggestion');
-  workflow.addEdge('context', 'actionItem');
-  workflow.addEdge('context', 'decision');
+  // Router logic to select path
+  const routeFromContext = (state) => {
+    if (state.query === 'Generate final meeting summary') {
+      return 'summaryAgent';
+    }
+    return 'standard';
+  };
+
+  // Define conditional edge: route to summary agent or the standard router
+  workflow.addConditionalEdges('context', routeFromContext, {
+    summaryAgent: 'summaryAgent',
+    standard: 'standardRouter',
+  });
+
+  // Static parallel edges from standardRouter to downstream analysis agents
+  workflow.addEdge('standardRouter', 'suggestion');
+  workflow.addEdge('standardRouter', 'actionItem');
+  workflow.addEdge('standardRouter', 'decision');
 
   // Terminate execution paths
   workflow.addEdge('suggestion', END);
   workflow.addEdge('actionItem', END);
   workflow.addEdge('decision', END);
-
-  // Summary node is invoked separately on meeting.ended (direct or separate pipeline trigger)
-  workflow.addEdge('summary', END);
+  workflow.addEdge('summaryAgent', END);
 
   return workflow.compile();
 }
