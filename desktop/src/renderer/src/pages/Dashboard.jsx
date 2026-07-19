@@ -1,3 +1,8 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMeetingStore } from '../store/meetingStore.js';
+import { useAppStore } from '../store/appStore.js';
+
 const styles = {
   container: {
     display: 'flex',
@@ -58,6 +63,37 @@ const styles = {
 };
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { setActiveMeeting } = useMeetingStore();
+  const { setRecording } = useAppStore();
+
+  const handleStartMeeting = async () => {
+    try {
+      // 1. Create a new meeting via Electron bridge
+      const createRes = await window.meetingPilot.meeting.create({
+        title: `Quick Sync — ${new Date().toLocaleDateString()}`,
+        description: 'AI meeting copilot session.',
+      });
+
+      if (createRes.success && createRes.data) {
+        const meetingId = createRes.data.id;
+
+        // 2. Start the meeting
+        const startRes = await window.meetingPilot.meeting.start(meetingId);
+        if (startRes.success) {
+          // 3. Update active states
+          setActiveMeeting(startRes.data);
+          setRecording(true);
+
+          // 4. Navigate to live MeetingView panel
+          navigate(`/meeting/${meetingId}`);
+        }
+      }
+    } catch (error) {
+      console.error('[Dashboard] Failed to start new meeting:', error);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.welcomeCard}>
@@ -68,6 +104,7 @@ export default function Dashboard() {
         </p>
         <button
           style={styles.startButton}
+          onClick={handleStartMeeting}
           onMouseEnter={(e) => (e.target.style.backgroundColor = 'var(--color-accent-hover)')}
           onMouseLeave={(e) => (e.target.style.backgroundColor = 'var(--color-accent)')}
         >
