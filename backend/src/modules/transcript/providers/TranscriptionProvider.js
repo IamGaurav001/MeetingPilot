@@ -45,8 +45,9 @@ export class BrowserSpeechProvider extends TranscriptionProvider {
 export class DeepgramProvider extends TranscriptionProvider {
   async transcribe(chunk) {
     console.log('[DeepgramProvider] Transcribing audio buffer...');
-    // Real implementation would make a WebSocket/REST call to Deepgram API
-    // We'll mock the transcribe response for STT abstraction validation
+    if (chunk && chunk.text) {
+      return { text: chunk.text, confidence: chunk.confidence || 0.98 };
+    }
     return {
       text: typeof chunk === 'string' ? chunk : '[Mocked Deepgram Transcription]',
       confidence: 0.98,
@@ -60,6 +61,9 @@ export class DeepgramProvider extends TranscriptionProvider {
 export class GeminiSpeechProvider extends TranscriptionProvider {
   async transcribe(chunk) {
     console.log('[GeminiSpeechProvider] Transcribing audio using Gemini Multimodal...');
+    if (chunk && chunk.text) {
+      return { text: chunk.text, confidence: chunk.confidence || 0.92 };
+    }
     return {
       text: typeof chunk === 'string' ? chunk : '[Mocked Gemini Multimodal Transcription]',
       confidence: 0.92,
@@ -73,6 +77,9 @@ export class GeminiSpeechProvider extends TranscriptionProvider {
 export class WhisperProvider extends TranscriptionProvider {
   async transcribe(chunk) {
     console.log('[WhisperProvider] Transcribing audio using OpenAI Whisper...');
+    if (chunk && chunk.text) {
+      return { text: chunk.text, confidence: chunk.confidence || 0.95 };
+    }
     return {
       text: typeof chunk === 'string' ? chunk : '[Mocked Whisper Transcription]',
       confidence: 0.95,

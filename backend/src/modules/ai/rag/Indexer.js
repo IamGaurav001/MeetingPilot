@@ -4,6 +4,7 @@
  * Embeds transcript chunks and indexes them into Qdrant vector database.
  */
 
+import { randomUUID } from 'crypto';
 import { getQdrantClient, ensureCollection } from './CollectionManager.js';
 import { embedQuery } from './EmbeddingService.js';
 import { logger } from '../../../config/logger.js';
@@ -26,11 +27,13 @@ export async function indexChunk(chunk) {
 
     // 3. Upsert payload into Qdrant
     const qdrant = getQdrantClient();
+    const pointId = chunk.id || randomUUID();
+
     await qdrant.upsert(COLLECTION_NAME, {
       wait: true,
       points: [
         {
-          id: chunk.id,
+          id: pointId,
           vector,
           payload: {
             meetingId: chunk.meetingId,

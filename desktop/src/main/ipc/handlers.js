@@ -12,23 +12,66 @@ import { IPC_CHANNELS } from './channels.js';
  * Register all IPC handlers.
  * Called once during app initialization.
  */
+const BACKEND_URL = 'http://localhost:3001';
+
 export function registerIpcHandlers() {
   // Meeting handlers
   ipcMain.handle(IPC_CHANNELS.MEETING_LIST, async () => {
-    // Phase 2: Forward to backend API
-    return { success: true, data: [] };
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/meetings`);
+      return await response.json();
+    } catch (error) {
+      console.error('[IPC] Failed to list meetings:', error);
+      return { success: false, error: error.message };
+    }
   });
 
   ipcMain.handle(IPC_CHANNELS.MEETING_CREATE, async (_event, data) => {
-    return { success: true, data: { id: 'stub', ...data } };
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/meetings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('[IPC] Failed to create meeting:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle(IPC_CHANNELS.MEETING_GET, async (_event, meetingId) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/meetings/${meetingId}`);
+      return await response.json();
+    } catch (error) {
+      console.error('[IPC] Failed to get meeting:', error);
+      return { success: false, error: error.message };
+    }
   });
 
   ipcMain.handle(IPC_CHANNELS.MEETING_START, async (_event, meetingId) => {
-    return { success: true, data: { id: meetingId, status: 'ACTIVE' } };
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/meetings/${meetingId}/start`, {
+        method: 'POST',
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('[IPC] Failed to start meeting:', error);
+      return { success: false, error: error.message };
+    }
   });
 
   ipcMain.handle(IPC_CHANNELS.MEETING_STOP, async (_event, meetingId) => {
-    return { success: true, data: { id: meetingId, status: 'COMPLETED' } };
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/meetings/${meetingId}/stop`, {
+        method: 'POST',
+      });
+      return await response.json();
+    } catch (error) {
+      console.error('[IPC] Failed to stop meeting:', error);
+      return { success: false, error: error.message };
+    }
   });
 
   // Audio handlers

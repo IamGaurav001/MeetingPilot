@@ -101,6 +101,10 @@ export async function deleteMeeting(meetingId, userId) {
 export async function transitionStatus(meetingId, userId, newStatus) {
   const meeting = await getMeetingById(meetingId, userId);
 
+  if (meeting.status === newStatus) {
+    return meeting;
+  }
+
   const allowed = MEETING_STATUS_TRANSITIONS[meeting.status] || [];
 
   if (!allowed.includes(newStatus)) {

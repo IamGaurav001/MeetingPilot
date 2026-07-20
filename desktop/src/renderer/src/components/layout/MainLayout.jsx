@@ -16,8 +16,10 @@ const layoutStyles = {
   },
   content: {
     flex: 1,
-    overflow: 'auto',
+    overflow: 'hidden',
     padding: 'var(--spacing-xl)',
+    display: 'flex',
+    flexDirection: 'column',
   },
 };
 

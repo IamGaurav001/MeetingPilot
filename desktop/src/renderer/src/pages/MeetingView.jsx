@@ -9,7 +9,7 @@ const styles = {
     display: 'grid',
     gridTemplateColumns: '1fr 360px',
     gap: 'var(--spacing-lg)',
-    height: 'calc(100vh - var(--header-height) - var(--spacing-xl) * 2)',
+    height: '100%',
     overflow: 'hidden',
   },
   leftPanel: {
@@ -164,6 +164,34 @@ const styles = {
     backgroundColor: 'var(--color-accent)',
     animation: 'pulse 1.5s infinite',
   },
+  inputArea: {
+    display: 'flex',
+    gap: 'var(--spacing-sm)',
+    marginTop: 'var(--spacing-md)',
+    flexShrink: 0,
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: 'var(--color-bg-secondary)',
+    border: '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-md)',
+    padding: 'var(--spacing-sm) var(--spacing-md)',
+    color: 'var(--color-text-primary)',
+    fontSize: 'var(--font-size-sm)',
+    outline: 'none',
+    transition: 'border-color var(--transition-fast)',
+  },
+  btnSend: {
+    backgroundColor: 'var(--color-accent)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 'var(--radius-md)',
+    padding: '0 var(--spacing-lg)',
+    cursor: 'pointer',
+    fontWeight: 'var(--font-weight-semibold)',
+    fontSize: 'var(--font-size-sm)',
+    transition: 'background-color var(--transition-fast)',
+  },
 };
 
 export default function MeetingView() {
@@ -181,6 +209,7 @@ export default function MeetingView() {
   const [summary, setSummary] = useState(null);
   const [aiStatus, setAiStatus] = useState('Idle');
   const [metrics, setMetrics] = useState({ llmLatency: 0, embedLatency: 0, pipeLatency: 0 });
+  const [inputText, setInputText] = useState('');
 
   // Connect socket on load
   useEffect(() => {
@@ -238,6 +267,133 @@ export default function MeetingView() {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [transcript]);
 
+  // Speech Recognition loop for continuous audio-to-text streaming
+  useEffect(() => {
+    if (!isRecording) return;
+
+    let recognition = null;
+    let keepListening = true;
+
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn('[MeetingView] Speech Recognition not supported in this client');
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = async (event) => {
+        const lastResultIndex = event.results.length - 1;
+        const text = event.results[lastResultIndex][0].transcript.trim();
+
+        if (text) {
+          console.log('[MeetingView] Local STT segment:', text);
+          setAiStatus('Sending chunk...');
+
+          try {
+            const response = await fetch(
+              `http://localhost:3001/api/meetings/${id}/transcript/chunks`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  speaker: 'Speaker 1',
+                  text,
+                  startTime: Date.now() / 1000,
+                  endTime: Date.now() / 1000 + 1,
+                }),
+              },
+            );
+            const resData = await response.json();
+            console.log('[MeetingView] Chunk saved:', resData);
+          } catch (err) {
+            console.error('[MeetingView] Failed to stream chunk to backend:', err);
+          }
+        }
+      };
+
+      recognition.onerror = (event) => {
+        // Ignore normal interruptions
+        if (event.error === 'no-speech') return;
+
+        console.error('[MeetingView] Speech Recognition error:', event.error);
+
+        // If it's a permanent block/network issue, stop restarting
+        if (
+          event.error === 'network' ||
+          event.error === 'not-allowed' ||
+          event.error === 'service-not-allowed'
+        ) {
+          console.warn(
+            '[MeetingView] Permanent speech recognition error. Stopping automatic restarts.',
+          );
+          keepListening = false;
+          try {
+            recognition.stop();
+          } catch (e) {
+            // Ignore
+          }
+        }
+      };
+
+      recognition.onend = () => {
+        if (keepListening && isRecording) {
+          try {
+            recognition.start();
+          } catch (e) {
+            // Speech recognition might be in process of starting
+          }
+        }
+      };
+
+      recognition.start();
+      console.log('[MeetingView] WebSpeech recognition started');
+    } catch (error) {
+      console.error('[MeetingView] Failed to start speech recognition loop:', error);
+    }
+
+    return () => {
+      keepListening = false;
+      if (recognition) {
+        try {
+          recognition.stop();
+        } catch (e) {
+          // Ignore
+        }
+      }
+    };
+  }, [isRecording, id]);
+
+  const handleSendSimulatedSpeech = async () => {
+    if (!inputText.trim()) return;
+    const text = inputText.trim();
+    setInputText('');
+
+    console.log('[MeetingView] Sending simulated speech:', text);
+    setAiStatus('Sending chunk...');
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/meetings/${id}/transcript/chunks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          speaker: 'User',
+          text,
+          startTime: Date.now() / 1000,
+          endTime: Date.now() / 1000 + 1,
+        }),
+      });
+      const resData = await response.json();
+      console.log('[MeetingView] Simulated chunk saved:', resData);
+    } catch (err) {
+      console.error('[MeetingView] Failed to send simulated chunk:', err);
+    }
+  };
+
   const handleStopMeeting = async () => {
     setAiStatus('Generating Summary...');
     const res = await window.meetingPilot.meeting.stop(id);
@@ -260,9 +416,21 @@ export default function MeetingView() {
               <span style={styles.observabilityBadge}>Pipe: {metrics.pipeLatency}ms</span>
             </div>
           </div>
-          <button style={styles.btnStop} onClick={handleStopMeeting}>
-            ■ Stop Meeting
-          </button>
+          {isRecording && activeMeeting?.status !== 'COMPLETED' ? (
+            <button style={styles.btnStop} onClick={handleStopMeeting}>
+              ■ Stop Meeting
+            </button>
+          ) : (
+            <button
+              style={{ ...styles.btnStop, backgroundColor: 'var(--color-accent)' }}
+              onClick={() => {
+                clearActiveMeeting();
+                navigate('/');
+              }}
+            >
+              ◀ Back to Dashboard
+            </button>
+          )}
         </div>
 
         <div style={styles.transcriptBox}>
@@ -290,6 +458,39 @@ export default function MeetingView() {
             ))
           )}
           <div ref={transcriptEndRef} />
+        </div>
+
+        <div style={styles.inputArea}>
+          <input
+            type="text"
+            placeholder={
+              isRecording && activeMeeting?.status !== 'COMPLETED'
+                ? "Type to simulate speech (e.g., 'Gaurav will write the report by Friday')"
+                : 'Meeting ended. Go back to dashboard to start a new sync.'
+            }
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSendSimulatedSpeech();
+            }}
+            disabled={!isRecording || activeMeeting?.status === 'COMPLETED'}
+            style={{
+              ...styles.textInput,
+              opacity: isRecording && activeMeeting?.status !== 'COMPLETED' ? 1 : 0.6,
+            }}
+          />
+          <button
+            onClick={handleSendSimulatedSpeech}
+            disabled={!isRecording || activeMeeting?.status === 'COMPLETED'}
+            style={{
+              ...styles.btnSend,
+              opacity: isRecording && activeMeeting?.status !== 'COMPLETED' ? 1 : 0.6,
+              cursor:
+                isRecording && activeMeeting?.status !== 'COMPLETED' ? 'pointer' : 'not-allowed',
+            }}
+          >
+            Send
+          </button>
         </div>
       </div>
 
